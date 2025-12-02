@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Skin Condition Analyzer</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="logo">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2z"/>
+                    <path d="M12 6v6l4 2"/>
+                </svg>
+                <h1>SkinAI</h1>
+            </div>
+            <p class="tagline">AI-Powered Skin Condition Analysis</p>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Upload Section -->
+            <section class="upload-section" id="uploadSection">
+                <div class="upload-container" id="dropZone">
+                    <div class="upload-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                            <polyline points="17 8 12 3 7 8"/>
+                            <line x1="12" y1="3" x2="12" y2="15"/>
+                        </svg>
+                    </div>
+                    <h2>Upload Your Image</h2>
+                    <p>Drag and drop an image here, or click to select</p>
+                    <p class="file-hint">Supports: JPG, PNG, WebP (Max 10MB)</p>
+                    <input type="file" id="imageInput" accept="image/*" hidden>
+                    <button class="btn btn-primary" id="selectBtn">Select Image</button>
+                </div>
+
+                <!-- Camera Option -->
+                <div class="camera-option">
+                    <span class="divider-text">or</span>
+                    <button class="btn btn-secondary" id="cameraBtn">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+                            <circle cx="12" cy="13" r="4"/>
+                        </svg>
+                        Use Camera
+                    </button>
+                </div>
+            </section>
+
+            <!-- Preview Section (Hidden by default) -->
+            <section class="preview-section hidden" id="previewSection">
+                <div class="preview-container">
+                    <img id="previewImage" src="" alt="Preview">
+                    <div class="preview-actions">
+                        <button class="btn btn-secondary" id="changeImageBtn">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="1 4 1 10 7 10"/>
+                                <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/>
+                            </svg>
+                            Change Image
+                        </button>
+                        <button class="btn btn-primary" id="analyzeBtn">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="11" cy="11" r="8"/>
+                                <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                            </svg>
+                            Analyze Skin
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Loading Section (Hidden by default) -->
+            <section class="loading-section hidden" id="loadingSection">
+                <div class="loading-container">
+                    <div class="loader"></div>
+                    <p>Analyzing your skin...</p>
+                    <p class="loading-hint">This may take a few seconds</p>
+                </div>
+            </section>
+
+            <!-- Results Section (Hidden by default) -->
+            <section class="results-section hidden" id="resultsSection">
+                <div class="results-container">
+                    <!-- Main Result -->
+                    <div class="main-result">
+                        <div class="result-icon" id="resultIcon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                                <polyline points="22 4 12 14.01 9 11.01"/>
+                            </svg>
+                        </div>
+                        <h2 id="conditionName">Condition Detected</h2>
+                        <div class="confidence-badge" id="confidenceBadge">
+                            <span id="confidenceValue">95%</span> confidence
+                        </div>
+                    </div>
+
+                    <!-- All Conditions -->
+                    <div class="all-conditions">
+                        <h3>All Detected Conditions</h3>
+                        <div class="conditions-list" id="conditionsList">
+                            <!-- Filled by JavaScript -->
+                        </div>
+                    </div>
+
+                    <!-- Recommendations -->
+                    <div class="recommendations">
+                        <h3>Recommendations</h3>
+                        <p class="recommendation-description" id="recommendationDescription"></p>
+                        
+                        <div class="recommendation-cards">
+                            <div class="rec-card tips-card">
+                                <h4>
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <circle cx="12" cy="12" r="10"/>
+                                        <line x1="12" y1="16" x2="12" y2="12"/>
+                                        <line x1="12" y1="8" x2="12.01" y2="8"/>
+                                    </svg>
+                                    Tips
+                                </h4>
+                                <ul id="tipsList"></ul>
+                            </div>
+
+                            <div class="rec-card ingredients-card">
+                                <h4>
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <polyline points="9 11 12 14 22 4"/>
+                                        <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
+                                    </svg>
+                                    Ingredients to Look For
+                                </h4>
+                                <div class="ingredient-tags" id="goodIngredients"></div>
+                            </div>
+
+                            <div class="rec-card avoid-card">
+                                <h4>
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <circle cx="12" cy="12" r="10"/>
+                                        <line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/>
+                                    </svg>
+                                    Ingredients to Avoid
+                                </h4>
+                                <div class="ingredient-tags avoid" id="badIngredients"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="result-actions">
+                        <button class="btn btn-secondary" id="newAnalysisBtn">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="1 4 1 10 7 10"/>
+                                <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/>
+                            </svg>
+                            New Analysis
+                        </button>
+                        <button class="btn btn-primary" id="downloadBtn">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                                <polyline points="7 10 12 15 17 10"/>
+                                <line x1="12" y1="15" x2="12" y2="3"/>
+                            </svg>
+                            Download Report
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Error Section (Hidden by default) -->
+            <section class="error-section hidden" id="errorSection">
+                <div class="error-container">
+                    <div class="error-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"/>
+                            <line x1="12" y1="8" x2="12" y2="12"/>
+                            <line x1="12" y1="16" x2="12.01" y2="16"/>
+                        </svg>
+                    </div>
+                    <h2>Analysis Failed</h2>
+                    <p id="errorMessage">An error occurred during analysis.</p>
+                    <button class="btn btn-primary" id="tryAgainBtn">Try Again</button>
+                </div>
+            </section>
+        </main>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>⚠️ This tool is for educational purposes only. Always consult a dermatologist for professional medical advice.</p>
+        </footer>
+    </div>
+
+    <!-- Camera Modal -->
+    <div class="modal hidden" id="cameraModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Take a Photo</h3>
+                <button class="modal-close" id="closeCameraBtn">&times;</button>
+            </div>
+            <div class="camera-container">
+                <video id="cameraVideo" autoplay playsinline></video>
+                <canvas id="cameraCanvas" hidden></canvas>
+            </div>
+            <div class="camera-controls">
+                <button class="btn btn-primary" id="captureBtn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"/>
+                    </svg>
+                    Capture
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>
