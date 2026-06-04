@@ -25,7 +25,10 @@ An AI-powered web application that analyzes skin conditions using deep learning 
 
 ```
 skin condition/
-├── app.py                    # Flask application
+├── app.py                    # Flask application (local development)
+├── api/
+│   └── index.py              # Vercel serverless function entry point
+├── vercel.json               # Vercel deployment configuration
 ├── requirements.txt          # Python dependencies
 ├── model/
 │   └── mobilenet_final.h5    # Trained MobileNetV2 model
@@ -116,6 +119,46 @@ with open('skin_image.jpg', 'rb') as f:
 ## Disclaimer
 
 ⚠️ **This tool is for educational purposes only.** The analysis provided should not be considered medical advice. Always consult a dermatologist or healthcare professional for proper diagnosis and treatment of skin conditions.
+
+## Deploying to Vercel
+
+### Prerequisites
+- [Vercel CLI](https://vercel.com/cli) installed (`npm i -g vercel`)
+- A Vercel account
+
+### Deployment Steps
+
+1. **Login to Vercel**:
+   ```bash
+   vercel login
+   ```
+
+2. **Deploy the project**:
+   ```bash
+   cd "skin condition"
+   vercel
+   ```
+
+3. **For production deployment**:
+   ```bash
+   vercel --prod
+   ```
+
+### Important Notes for Vercel Deployment
+
+- The model file (`model/mobilenet_final.h5`) will be included in the deployment
+- Vercel serverless functions have a 50MB limit for the total package size
+- If the model is too large, consider:
+  - Using a smaller model
+  - Hosting the model on cloud storage (S3, GCS) and loading it dynamically
+  - Using TensorFlow Lite for a smaller model footprint
+
+### Environment Variables (if needed)
+
+Set environment variables in Vercel dashboard or using:
+```bash
+vercel env add VARIABLE_NAME
+```
 
 ## License
 

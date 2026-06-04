@@ -45,6 +45,13 @@ class SkinConditionService:
         project_root = os.path.dirname(current_dir)
         self.model_path = os.path.join(project_root, "model", "mobilenet_final.h5")
         
+        # For Vercel deployment, also check alternative paths
+        if not os.path.exists(self.model_path):
+            # Try relative to api folder
+            alt_path = os.path.join(os.path.dirname(current_dir), "model", "mobilenet_final.h5")
+            if os.path.exists(alt_path):
+                self.model_path = alt_path
+        
         # Label mapping for skin conditions - EXACT mapping from training
         self.index_to_label = {
             0: 'dry ',

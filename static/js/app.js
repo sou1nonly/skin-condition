@@ -153,15 +153,53 @@ class SkinAnalyzer {
 
     // ===== Camera Handling =====
     async openCamera() {
+        // Check if getUserMedia is supported
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+            this.showError('Camera is not supported in this browser. Please use a modern browser or upload an image instead.');
+            return;
+        }
+
         try {
-            this.stream = await navigator.mediaDevices.getUserMedia({
-                video: { facingMode: 'user', width: 1280, height: 720 }
-            });
+            // Try to get camera access with different constraints
+            let stream;
+            try {
+                // First try with ideal constraints
+                stream = await navigator.mediaDevices.getUserMedia({
+                    video: { facingMode: 'user', width: { ideal: 1280 }, height: { ideal: 720 } }
+                });
+            } catch (e) {
+                // Fallback to basic video
+                stream = await navigator.mediaDevices.getUserMedia({ video: true });
+            }
+            
+            this.stream = stream;
             this.cameraVideo.srcObject = this.stream;
+            
+            // Wait for video to be ready
+            this.cameraVideo.onloadedmetadata = () => {
+                this.cameraVideo.play();
+            };
+            
             this.cameraModal.classList.remove('hidden');
         } catch (error) {
             console.error('Camera error:', error);
-            this.showError('Unable to access camera. Please check permissions.');
+            let errorMsg = 'Unable to access camera. ';
+            
+            if (error.name === 'NotAllowedError' || error.name === 'PermissionDeniedError') {
+                errorMsg += 'Camera permission was denied. Please allow camera access in your browser settings.';
+            } else if (error.name === 'NotFoundError' || error.name === 'DevicesNotFoundError') {
+                errorMsg += 'No camera found on this device.';
+            } else if (error.name === 'NotReadableError' || error.name === 'TrackStartError') {
+                errorMsg += 'Camera is already in use by another application.';
+            } else if (error.name === 'OverconstrainedError') {
+                errorMsg += 'Camera does not meet the required constraints.';
+            } else if (location.protocol !== 'https:' && location.hostname !== 'localhost' && location.hostname !== '127.0.0.1') {
+                errorMsg += 'Camera requires HTTPS. Please use localhost or enable HTTPS.';
+            } else {
+                errorMsg += 'Please check your camera permissions and try again.';
+            }
+            
+            this.showError(errorMsg);
         }
     }
 
