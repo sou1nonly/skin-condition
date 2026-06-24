@@ -270,35 +270,31 @@ class SkinAnalyzer {
     displayResults(data) {
         // Main result
         this.conditionName.textContent = data.top_condition;
-        this.confidenceValue.textContent = `${data.confidence}%`;
-
-        // Update confidence badge color based on value
-        const badge = document.getElementById('confidenceBadge');
-        if (data.confidence >= 70) {
-            badge.style.background = 'rgba(16, 185, 129, 0.2)';
-            badge.style.color = '#10b981';
-        } else if (data.confidence >= 40) {
-            badge.style.background = 'rgba(245, 158, 11, 0.2)';
-            badge.style.color = '#f59e0b';
-        } else {
-            badge.style.background = 'rgba(99, 102, 241, 0.2)';
-            badge.style.color = '#818cf8';
+        
+        // Update confidence bar with animation
+        const confidenceValue = Math.round(data.confidence);
+        this.confidenceValue.textContent = confidenceValue;
+        
+        const confidenceFill = document.getElementById('confidenceFill');
+        if (confidenceFill) {
+            // Animate the width after a short delay
+            setTimeout(() => {
+                confidenceFill.style.width = `${confidenceValue}%`;
+            }, 100);
         }
 
-        // All conditions
+        // All conditions - new grid layout
         this.conditionsList.innerHTML = '';
         const sortedConditions = Object.entries(data.all_conditions)
             .sort((a, b) => b[1] - a[1]);
 
-        sortedConditions.forEach(([name, percentage]) => {
+        sortedConditions.forEach(([name, percentage], index) => {
             const item = document.createElement('div');
             item.className = 'condition-item';
+            const roundedPercentage = percentage.toFixed(0);
             item.innerHTML = `
-                <span class="name">${name}</span>
-                <div class="bar-container">
-                    <div class="bar" style="width: ${percentage}%"></div>
-                </div>
-                <span class="percentage">${percentage.toFixed(1)}%</span>
+                <div class="condition-name">${name}</div>
+                <div class="condition-confidence">${roundedPercentage}% confidence</div>
             `;
             this.conditionsList.appendChild(item);
         });
