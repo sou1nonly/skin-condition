@@ -21,6 +21,20 @@ An AI-powered web application that analyzes skin conditions using deep learning 
 
 - 📊 **Detailed Reports**: View confidence scores for all detected conditions and download reports
 
+## Usage Examples
+
+### 1. Upload Interface
+The initial interface where users can upload or capture images:
+![Upload Interface](docs/screenshots/01-upload-interface.png)
+
+### 2. Image Selected
+After selecting an image, users can preview it before analysis:
+![Image Selected](docs/screenshots/02-image-selected.png)
+
+### 3. Analysis Results
+The results display showing detected condition, confidence level, and personalized recommendations:
+![Analysis Results](docs/screenshots/03-analysis-results.png)
+
 ## Project Structure
 
 ```
